@@ -65,7 +65,7 @@ class Pet(models.Model):
 #Profil uzytkownika
 class UserProfile(models.Model):
     email = models.EmailField(unique=True, help_text="Adres email (login)")
-    password = models.CharField(max_lenght = 128, editable=False)
+    password = models.CharField(max_length = 128, editable=False)
     avatar = models.ImageField(
          upload_to='avatars',
          blank=True,
