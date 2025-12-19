@@ -78,6 +78,16 @@ class UserProfile(models.Model):
          blank=True,
          help_text="Data urodzenia"
     )
+
+    def get_age(self):
+        if not self.birth_date:
+            return "Nie podano"
+        today = date.today()
+        return today.year - self.birth_date.year - (
+            (today.month, today.day) < (self.birth_date.month, self.birth_date.day)
+        )
+
+    
     first_name = models.CharField(max_length=50)
     city = models.CharField(max_length=50, help_text="Miasto, w którym mieszkacie (Ty i Twój pupil).")
     gender = models.IntegerField(

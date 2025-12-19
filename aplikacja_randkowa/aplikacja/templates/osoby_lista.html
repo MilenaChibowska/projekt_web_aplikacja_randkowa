@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista Użytkowników</title>
+</head>
+<body>
+    <h1>Lista użytkowników</h1>
+
+    <ul>
+        {% for user in users %}
+            <li>
+                <strong>{{ user.username }}</strong> - {{ user.bio }}
+            </li>
+        {% empty %}
+            <li>Brak danych w bazie.</li>
+        {% endfor %}
+    </ul>
+
+    <p><a href="/welcome/">Powrót</a></p>
+</body>
+</html>

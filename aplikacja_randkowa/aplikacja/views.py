@@ -1,7 +1,9 @@
 from django.shortcuts import render
 
-# Create your views here.
 
+from django.http import HttpResponse 
+import datetime
+from django.db.models import Q
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -16,7 +18,24 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 
-# Widoki dla UserProfile
+def welcome_view(request):
+    now = datetime.datetime.now()
+    html = f"""
+        <html><body>
+        Witaj użytkowniku! </br>
+        Aktualna data i czas na serwerze: {now}.
+        </body></html>"""
+    return HttpResponse(html)
+
+def user_list_html(request):
+    uzytkownicy = UserProfile.objects.all()
+    return HttpResponse(uzytkownicy)
+
+def user_list_template(request):
+    uzytkownicy = UserProfile.objects.all()
+    return render(request, 'osoby_lista.html', {'users': uzytkownicy})
+
+#  Widoki dla UserProfile
 
 class UserProfileListCreateAPIView(generics.ListCreateAPIView):
     queryset = UserProfile.objects.all()
