@@ -94,10 +94,6 @@ class MessageListCreateAPIView(generics.ListCreateAPIView):
         # Sprawdzamy, czy zalogowany użytkownik jest stroną tego Match
         match = get_object_or_404(Match, pk=match_id)
         
-        # Wymagane sprawdzenie uprawnień
-        # current_user_profile = get_object_or_404(UserProfile, user=self.request.user)
-        # if current_user_profile not in [match.swiper, match.target]:
-        #     raise PermissionDenied("Nie masz dostępu do tej konwersacji.")
         
         return Message.objects.filter(match_id=match_id).order_by('timestamp')
 
