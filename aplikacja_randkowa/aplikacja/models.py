@@ -65,7 +65,7 @@ class Pet(models.Model):
 
 #Profil uzytkownika
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_existent=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(
          upload_to='avatars',
          blank=True,

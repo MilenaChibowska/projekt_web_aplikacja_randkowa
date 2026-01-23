@@ -11,9 +11,9 @@ class PetAdmin(admin.ModelAdmin):
 # Klasa UserProfile
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ["first_name", "email", "city", "get_age_display", "created_at"]
+    list_display = ["first_name", "city", "get_age_display", "created_at"]
     list_filter = ["city", "gender", "preferred_pet_type", "created_at"]
-    search_fields = ["first_name", "city", "bio", "email"]
+    search_fields = ["first_name", "city", "bio", ]
 
     def get_age_display(self, obj):
         return obj.get_age()
