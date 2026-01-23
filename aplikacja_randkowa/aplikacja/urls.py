@@ -1,8 +1,8 @@
 from django.urls import path
+# Importujemy funkcje bezpośrednio, tak jak miałaś to zaczęte
 from .views import (
     welcome_view,
-    user_list_html,
-    
+    user_list_html, # To jest Twoja funkcja od kart HTML
     UserProfileListCreateAPIView, 
     UserProfileRetrieveUpdateDestroyAPIView,
     PetListCreateAPIView,
@@ -13,10 +13,13 @@ from .views import (
 )
 
 urlpatterns = [
+    # Strona powitalna
     path('welcome/', welcome_view, name='welcome'),
-    path('profiles-raw/', user_list_html, name='user-list-raw'),
-    path('profiles-html/', user_list_html, name='user-list-html'),
-
+    
+    # TWOJA STRONA Z KARTAMI (wybieramy jeden stały adres)
+    path('osoby-html/', user_list_html, name='user_list_html'),
+    
+    # API (reszta Twoich ścieżek)
     path('profiles/', 
          UserProfileListCreateAPIView.as_view(), 
          name='userprofile-list-create'),

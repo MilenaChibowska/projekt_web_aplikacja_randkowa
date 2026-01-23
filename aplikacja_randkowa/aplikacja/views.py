@@ -29,11 +29,11 @@ def welcome_view(request):
 
 def user_list_html(request):
     uzytkownicy = UserProfile.objects.all()
-    return HttpResponse(uzytkownicy)
+    return render(request, 'aplikacja/osoby_lista.html', {'users': users})
 
 def user_list_template(request):
     uzytkownicy = UserProfile.objects.all()
-    return render(request, 'osoby_lista.html', {'users': uzytkownicy})
+    return render(request, 'aplikacja/osoby_lista.html', {'users': uzytkownicy})
 
 #  Widoki dla UserProfile
 
