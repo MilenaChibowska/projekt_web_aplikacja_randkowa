@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.db.models import UniqueConstraint, Q
 from datetime import date
 
@@ -64,8 +65,7 @@ class Pet(models.Model):
 
 #Profil uzytkownika
 class UserProfile(models.Model):
-    email = models.EmailField(unique=True, help_text="Adres email (login)")
-    password = models.CharField(max_length = 128, editable=False)
+    user = models.OneToOneField(User, on_existent=models.CASCADE)
     avatar = models.ImageField(
          upload_to='avatars',
          blank=True,
