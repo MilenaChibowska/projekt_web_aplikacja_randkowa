@@ -1,5 +1,9 @@
 from django.urls import path
-# Importujemy funkcje bezpośrednio, tak jak miałaś to zaczęte
+
+urlpatterns = [
+    path('admin', admin.site.urls),
+    path('', include('aplikacja.urls'))
+]
 from .views import (
     welcome_view,
     user_list_html, # To jest Twoja funkcja od kart HTML
