@@ -19,6 +19,7 @@ def user_list_html(request):
 def user_detail_html(request, id):
     try:
         user_profile = UserProfile.objects.get(id=id)
+        return render(request, "aplikacja/osoba/detail.html", {'user': user_profile})
     except UserProfile.DoesNotExist:
         raise Http404("Obiekt o podanym id nie istnieje")
 

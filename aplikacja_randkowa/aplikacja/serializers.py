@@ -8,8 +8,6 @@ from .models import UserProfile, Pet, Match, Message, PET_TYPES
 
 
 class PetSerializer(serializers.ModelSerializer):
-    """Serializer do zarządzania profilami pupili."""
-
     weight = serializers.DecimalField(
         max_digits=5, 
         decimal_places=2, 
@@ -34,7 +32,6 @@ class PetSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def validate_name(self, value):
-        """Sprawdza, czy imię pupila zaczyna się z dużej litery."""
         if not value[0].isupper():
             raise serializers.ValidationError(
                 "Imię pupila powinno rozpoczynać się wielką literą!"
@@ -44,7 +41,6 @@ class PetSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    """Serializer do zarządzania profilami użytkowników (bez hasła)."""
     
     first_name = serializers.CharField(
         max_length=50,
@@ -57,7 +53,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
     def validate(self, data):
-        """Walidacja na poziomie obiektu (np. sprawdzenie wieku)."""
         
         birth_date = data.get('birth_date')
         
@@ -76,7 +71,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class MatchSerializer(serializers.ModelSerializer):
-    """Serializer do tworzenia polubień (like)."""
     
     swiper_name = serializers.CharField(source='swiper.first_name', read_only=True)
     target_name = serializers.CharField(source='target.first_name', read_only=True)
@@ -95,14 +89,12 @@ class MatchSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        """Walidacja, aby użytkownik nie polubił samego siebie."""
         if data['swiper'] == data['target']:
             raise serializers.ValidationError("Nie możesz polubić własnego profilu.")
         return data
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    """Serializer do tworzenia wiadomości w ramach dopasowania."""
     
     sender_name = serializers.CharField(source='sender.first_name', read_only=True)
     recipient_name = serializers.CharField(source='recipient.first_name', read_only=True)
@@ -113,7 +105,6 @@ class MessageSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'timestamp', 'sender_name', 'recipient_name']
         
     def validate(self, data):
-        """Sprawdza, czy nadawca i odbiorca są stronami danego Match i czy Match jest aktywny."""
         
         match_instance = data.get('match')
         sender = data.get('sender')

@@ -1,14 +1,12 @@
 from django.contrib import admin
 from .models import Pet, UserProfile, Match, Message
 
-# Klasa Pet
 
 class PetAdmin(admin.ModelAdmin):
     list_display = ["name", "pet_type", "breed", "age", "is_friendly"]
     list_filter = ["pet_type", "is_friendly"]
     search_fields = ["name", "breed", "description"]
 
-# Klasa UserProfile
 
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ["first_name", "city", "get_age_display", "created_at"]
@@ -19,14 +17,12 @@ class UserProfileAdmin(admin.ModelAdmin):
         return obj.get_age()
     get_age_display.short_description = "Wiek"
 
-# Klasa Match
 
 class MatchAdmin(admin.ModelAdmin):
     list_display = ["swiper", "target", "is_match", "timestamp"]
     list_filter = ["is_match", "timestamp"]
     search_fields = ["swiper__first_name", "target__first_name"]
 
-# Klasa Admin
 
 class MessageAdmin(admin.ModelAdmin):
     list_display = ["match", "sender", "recipient", "timestamp", "content"]
