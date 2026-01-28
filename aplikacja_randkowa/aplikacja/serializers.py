@@ -3,12 +3,9 @@ from rest_framework.validators import UniqueTogetherValidator
 from django.core.validators import MaxLengthValidator, MinValueValidator, MaxValueValidator
 from django.db.models import Q
 
-# Importujemy wszystkie nasze modele
 from .models import UserProfile, Pet, Match, Message, PET_TYPES
 
 
-
-# Serializer dla modelu Pet 
 
 class PetSerializer(serializers.ModelSerializer):
     """Serializer do zarządzania profilami pupili."""
@@ -45,7 +42,6 @@ class PetSerializer(serializers.ModelSerializer):
         return value
 
 
-# Serializer dla modelu UserProfile
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer do zarządzania profilami użytkowników (bez hasła)."""
@@ -78,7 +74,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         return data
 
-# Serializer dla modelu Match
 
 class MatchSerializer(serializers.ModelSerializer):
     """Serializer do tworzenia polubień (like)."""
@@ -105,7 +100,6 @@ class MatchSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Nie możesz polubić własnego profilu.")
         return data
 
-# Serializer dla modelu Message
 
 class MessageSerializer(serializers.ModelSerializer):
     """Serializer do tworzenia wiadomości w ramach dopasowania."""
