@@ -1,22 +1,7 @@
-from django.shortcuts import render
-
-
-from django.http import HttpResponse 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, Http404
 import datetime
-from django.db.models import Q
-from rest_framework import generics
-from rest_framework import viewsets
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import UserProfile, Pet, Match, Message
-from .serializers import (
-    UserProfileSerializer, 
-    PetSerializer, 
-    MatchSerializer, 
-    MessageSerializer
-)
-from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from rest_framework import status
+from .models import UserProfile
 
 def welcome_view(request):
     now = datetime.datetime.now()
@@ -29,76 +14,41 @@ def welcome_view(request):
 
 def user_list_html(request):
     uzytkownicy = UserProfile.objects.all()
-    return render(request, 'aplikacja/osoby_lista.html', {'users': users})
+    return render(request, "aplikacja/osoba/list.html", {'users': uzytkownicy})
 
-def user_list_template(request):
-    uzytkownicy = UserProfile.objects.all()
-    return render(request, 'aplikacja/osoby_lista.html', {'users': uzytkownicy})
+def user_detail_html(request, id):
+    try:
+        user_profile = UserProfile.objects.get(id=id)
+    except UserProfile.DoesNotExist:
+        raise Http404("Obiekt o podanym id nie istnieje")
 
-#  Widoki dla UserProfile
+    if request.method == "POST":
+        user_profile.delete()
+        return redirect('user_list_html')
+    return render(request,
+                  "aplikacja/osoba/detail.html",
+                  {'user': user_profile})
 
-class UserProfileListCreateAPIView(generics.ListCreateAPIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
-    permission_classes = [AllowAny]
-
-# Szczegóły profilu
-
-class UserProfileRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
-
-# Widoki dla Pet
-
-class PetListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Pet.objects.all()
-    serializer_class = PetSerializer
-    permission_classes = [IsAuthenticated]
-
-class PetRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Pet.objects.all()
-    serializer_class = PetSerializer
-    permission_classes = [IsAuthenticated]
-
-# Widoki dla Match
-
-class MatchCreateAPIView(generics.CreateAPIView):
-    queryset = Match.objects.all()
-    serializer_class = MatchSerializer
-    permission_classes = [IsAuthenticated]
-
-# Listowanie Matchy
-
-class MatchListAPIView(generics.ListAPIView):
-    serializer_class = MatchSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user_profile = get_object_or_404(UserProfile, user=self.request.user)
-        
-        return Match.objects.filter(
-            Q(swiper=user_profile) | Q(target=user_profile)
-        ).select_related('swiper', 'target')
+def user_create_html(request):
+    if request.method == "GET":
+        return render(request, "aplikacja/osoba/create.html")
     
-# Widok dla modelu Message
+    elif request.method == "POST":
+        first_name = request.POST.get('first_name')
+        city = request.POST.get('city')
+        bio = request.POST.get('bio')
+        if first_name and city:
+            try:
+                UserProfile.objects.create(
+                    first_name=first_name,
+                    city=city,
+                    bio=bio,
+                )
+                return redirect('user_list_html')
+            except Exception as e:
+                error = f"Błąd tworzenia: {e}"
+                return render(request, "aplikacja/osoba/create.html", {'error': error})
 
-class MessageListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        # ID Match, które przekazujemy w adresie URL
-        match_id = self.kwargs['match_id'] 
-        
-        # Sprawdzamy, czy zalogowany użytkownik jest stroną tego Match
-        match = get_object_or_404(Match, pk=match_id)
-        
-        
-        return Message.objects.filter(match_id=match_id).order_by('timestamp')
-
-    def perform_create(self, serializer):
-        match_id = self.kwargs['match_id']
-        match_instance = get_object_or_404(Match, pk=match_id)
-        
-        serializer.save(match=match_instance)
+        else:
+            error = "Wszystkie pola są wymagane."
+            return render(request, "aplikacja/osoba/create.html", {'error': error})

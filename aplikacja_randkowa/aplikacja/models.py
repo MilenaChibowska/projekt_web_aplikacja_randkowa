@@ -122,20 +122,6 @@ class UserProfile(models.Model):
         help_text="Krótki opis o Was (Ty i Twój Pupil) i o tym, kogo szukasz."
     )
 
-    # Obliczanie wieku na podstawie self.birth_date
-def get_age(self): 
-        pass
-
-
-def __str__(self):
-        pass
-    
-    # Krótki opis własny
-bio = models.TextField(
-        blank=True, 
-        help_text="Krótki opis o Was (Ty i Twój Pupil) i o tym, kogo szukasz."
-    )
-
 def __str__(self):
         return f"Profil: {self.first_name} ({self.city})"
 
