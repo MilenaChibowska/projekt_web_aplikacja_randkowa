@@ -48,7 +48,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = '__all__'
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['id', 'created_at', 'user']
 
     def validate(self, data):
         
@@ -122,5 +122,3 @@ class MessageSerializer(serializers.ModelSerializer):
             )
 
         return data
-
-

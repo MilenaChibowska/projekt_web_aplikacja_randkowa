@@ -1,7 +1,9 @@
-from django.shortcuts import render
-from rest_framework import generics
-from rest_framework import viewsets
+from django.shortcuts import render, get_object_or_404
+from rest_framework import generics, viewsets, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from django.db.models import Q
+
 from .models import UserProfile, Pet, Match, Message
 from .serializers import (
     UserProfileSerializer, 
@@ -9,33 +11,30 @@ from .serializers import (
     MatchSerializer, 
     MessageSerializer
 )
-from django.shortcuts import get_object_or_404
-from django.db.models import Q
-from rest_framework.response import Response
-from rest_framework import status
+from .permissions import IsOwner, CustomDjangoModelPermissions 
 
 
 class UserProfileListCreateAPIView(generics.ListCreateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny] 
 
 
 class UserProfileRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
 
 
 class PetListCreateAPIView(generics.ListCreateAPIView):
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CustomDjangoModelPermissions] 
 
 class PetRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
 
 
 class MatchCreateAPIView(generics.CreateAPIView):
@@ -62,13 +61,9 @@ class MessageListCreateAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         match_id = self.kwargs['match_id'] 
-        
-        match = get_object_or_404(Match, pk=match_id)
-
         return Message.objects.filter(match_id=match_id).order_by('timestamp')
 
     def perform_create(self, serializer):
         match_id = self.kwargs['match_id']
         match_instance = get_object_or_404(Match, pk=match_id)
-        
         serializer.save(match=match_instance)
