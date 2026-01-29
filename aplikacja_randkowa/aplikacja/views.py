@@ -19,13 +19,13 @@ def user_list_html(request):
 def user_detail_html(request, id):
     try:
         user_profile = UserProfile.objects.get(id=id)
-        return render(request, "aplikacja/osoba/detail.html", {'user': user_profile})
     except UserProfile.DoesNotExist:
         raise Http404("Obiekt o podanym id nie istnieje")
 
     if request.method == "POST":
         user_profile.delete()
         return redirect('user_list_html')
+
     return render(request,
                   "aplikacja/osoba/detail.html",
                   {'user': user_profile})
@@ -38,9 +38,11 @@ def user_create_html(request):
         first_name = request.POST.get('first_name')
         city = request.POST.get('city')
         bio = request.POST.get('bio')
+        
         if first_name and city:
             try:
                 UserProfile.objects.create(
+                    user=request.user, 
                     first_name=first_name,
                     city=city,
                     bio=bio,
