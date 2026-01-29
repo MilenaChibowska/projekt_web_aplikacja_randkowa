@@ -1,57 +1,74 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, Http404
-import datetime
-from .models import UserProfile
+from django.shortcuts import render
+from rest_framework import generics
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from .models import UserProfile, Pet, Match, Message
+from .serializers import (
+    UserProfileSerializer, 
+    PetSerializer, 
+    MatchSerializer, 
+    MessageSerializer
+)
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
+from rest_framework.response import Response
+from rest_framework import status
 
-def welcome_view(request):
-    now = datetime.datetime.now()
-    html = f"""
-        <html><body>
-        Witaj użytkowniku! </br>
-        Aktualna data i czas na serwerze: {now}.
-        </body></html>"""
-    return HttpResponse(html)
 
-def user_list_html(request):
-    uzytkownicy = UserProfile.objects.all()
-    return render(request, "aplikacja/osoba/list.html", {'users': uzytkownicy})
+class UserProfileListCreateAPIView(generics.ListCreateAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [AllowAny]
 
-def user_detail_html(request, id):
-    try:
-        user_profile = UserProfile.objects.get(id=id)
-    except UserProfile.DoesNotExist:
-        raise Http404("Obiekt o podanym id nie istnieje")
 
-    if request.method == "POST":
-        user_profile.delete()
-        return redirect('user_list_html')
+class UserProfileRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
 
-    return render(request,
-                  "aplikacja/osoba/detail.html",
-                  {'user': user_profile})
 
-def user_create_html(request):
-    if request.method == "GET":
-        return render(request, "aplikacja/osoba/create.html")
-    
-    elif request.method == "POST":
-        first_name = request.POST.get('first_name')
-        city = request.POST.get('city')
-        bio = request.POST.get('bio')
+class PetListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Pet.objects.all()
+    serializer_class = PetSerializer
+    permission_classes = [IsAuthenticated]
+
+class PetRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Pet.objects.all()
+    serializer_class = PetSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class MatchCreateAPIView(generics.CreateAPIView):
+    queryset = Match.objects.all()
+    serializer_class = MatchSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class MatchListAPIView(generics.ListAPIView):
+    serializer_class = MatchSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_profile = get_object_or_404(UserProfile, user=self.request.user)
         
-        if first_name and city:
-            try:
-                UserProfile.objects.create(
-                    user=request.user, 
-                    first_name=first_name,
-                    city=city,
-                    bio=bio,
-                )
-                return redirect('user_list_html')
-            except Exception as e:
-                error = f"Błąd tworzenia: {e}"
-                return render(request, "aplikacja/osoba/create.html", {'error': error})
+        return Match.objects.filter(
+            Q(swiper=user_profile) | Q(target=user_profile)
+        ).select_related('swiper', 'target')
+    
 
-        else:
-            error = "Wszystkie pola są wymagane."
-            return render(request, "aplikacja/osoba/create.html", {'error': error})
+class MessageListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        match_id = self.kwargs['match_id'] 
+        
+        match = get_object_or_404(Match, pk=match_id)
+
+        return Message.objects.filter(match_id=match_id).order_by('timestamp')
+
+    def perform_create(self, serializer):
+        match_id = self.kwargs['match_id']
+        match_instance = get_object_or_404(Match, pk=match_id)
+        
+        serializer.save(match=match_instance)
